@@ -1,5 +1,5 @@
 %{
-#include "py_oop.tab.h"   // Token definitions from Bison
+#include "py_oop.tab.h"
 #include <string.h>
 #include <stdlib.h>
 

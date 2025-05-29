@@ -11,33 +11,35 @@ class Parser:
         self.self_method_found = False
 
     # --- Tokenization ---
-
     def tokenize(self, code):
         token_specification = [
-            ('CLASS',        r'class\b'),
-            ('DEF',          r'def\b'),
-            ('SELF',         r'self\b'),
-            ('ASSIGN',       r'='),
-            ('COLON',        r':'),
-            ('COMMA',        r','),
-            ('LPAREN',       r'\('),
-            ('RPAREN',       r'\)'),
-            ('CLASS_NAME',   r'[A-Z][a-zA-Z0-9_]*'),
-            ('IDENTIFIER',   r'[a-z_][a-zA-Z0-9_]*'),
-            ('EOL',          r'\n'),
-            ('SKIP',         r'[ \t]+'),
-            ('INVALID',      r'.'),
-        ]
+            ('COMMENT_BLOCK_A', r'"""[\s\S]*?"""'),
+            ('COMMENT_BLOCK_B', r"'''[\s\S]*?'''"),
+            ('COMMENT',         r'#.*'),           
+            ('CLASS',           r'class\b'),
+            ('DEF',             r'def\b'),
+            ('SELF',            r'self\b'),
+            ('ASSIGN',          r'='),
+            ('COLON',           r':'),
+            ('COMMA',           r','),
+            ('LPAREN',          r'\('),
+            ('RPAREN',          r'\)'),
+            ('CLASS_NAME',      r'[A-Z][a-zA-Z0-9]*'),
+            ('IDENTIFIER',      r'[a-z_][a-zA-Z0-9_]*'),
+            ('EOL',             r'\n'),
+            ('SKIP',            r'[ \t]+'),
+            ('INVALID',         r'.'),
+        ]   
 
         token_regex = '|'.join(f'(?P<{name}>{regex})' for name, regex in token_specification)
         tokens = []
         for mo in re.finditer(token_regex, code):
             kind = mo.lastgroup
             value = mo.group()
-            if kind == 'SKIP':
+            if kind in {'SKIP', 'COMMENT', 'COMMENT_BLOCK_A', 'COMMENT_BLOCK_B'}:
                 continue
             elif kind == 'INVALID':
-                print(f"Invalid character: {value}")
+                #print(f"Invalid character: {value}")
                 tokens.append(('INVALID', value))
             else:
                 tokens.append((kind, value))
@@ -61,13 +63,12 @@ class Parser:
         return value
 
     # --- Grammar Rules ---
-
     def parse(self):
         while self.peek() != 'EOF':
             try:
                 self.stmt()
             except SyntaxError as e:
-                print(f"Syntax error: {e}")
+                # #print(f"Syntax error: {e}")
                 self.sync()
 
     def stmt(self):
@@ -93,7 +94,7 @@ class Parser:
             self.expect('RPAREN')
         self.expect('COLON')
         self.expect('EOL')
-        print(f"[Parser] Found class definition: {name}")
+        # #print(f"[Parser] Found class definition: {name}")
         self.class_found = True
 
 
@@ -104,7 +105,7 @@ class Parser:
         self.expect('LPAREN')
         self.expect('RPAREN')
         self.expect('EOL')
-        print(f"[Parser] Found instantiation: {var_name} = {class_name}()")
+        # #print(f"[Parser] Found instantiation: {var_name} = {class_name}()")
         self.instantiation_found = True
 
     def method_self(self):
@@ -115,7 +116,7 @@ class Parser:
         self.expect('RPAREN')
         self.expect('COLON')
         self.expect('EOL')
-        print(f"[Parser] Found method with self: {method_name}")
+        #print(f"[Parser] Found method with self: {method_name}")
         self.self_method_found = True
 
     def arg_list(self):
@@ -144,20 +145,20 @@ class Parser:
         if self.peek() == 'EOL':
             self.current += 1
 
-    def summary(self):
-        print("\n[Result] Detection Summary:")
-        print(f"  Class Found: {'YES' if self.class_found else 'NO'}")
-        print(f"  Instantiation Found: {'YES' if self.instantiation_found else 'NO'}")
-        print(f"  Method with self Found: {'YES' if self.self_method_found else 'NO'}")
+    # def summary(self):
+    #     #print("\n[Result] Detection Summary:")
+    #     #print(f"  Class Found: {'YES' if self.class_found else 'NO'}")
+    #     #print(f"  Instantiation Found: {'YES' if self.instantiation_found else 'NO'}")
+    #     #print(f"  Method with self Found: {'YES' if self.self_method_found else 'NO'}")
 
-        if self.class_found:
-            print("✅ Code uses object-oriented programming.")
-        else:
-            print("⚠️ Not enough OOP patterns detected.")
+    #     if self.class_found:
+    #         #print("✅ Code uses object-oriented programming.")
+    #     else:
+    #         #print("⚠️ Not enough OOP patterns detected.")
 
-def validate(path):
-    with open(path, 'r') as f:
-        source = f.read()
+def validate(source):
+    # with open(path, 'r') as f:
+    #     source = f.read()
     parser = Parser(source)
     parser.parse()
     # parser.summary()
