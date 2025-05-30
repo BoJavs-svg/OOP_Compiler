@@ -68,7 +68,7 @@ class Parser:
             try:
                 self.stmt()
             except SyntaxError as e:
-                # #print(f"Syntax error: {e}")
+                # print(f"Syntax error: {e}")
                 self.sync()
 
     def stmt(self):
@@ -94,7 +94,7 @@ class Parser:
             self.expect('RPAREN')
         self.expect('COLON')
         self.expect('EOL')
-        # #print(f"[Parser] Found class definition: {name}")
+        print(f"[Parser] Found class definition: {name}")
         self.class_found = True
 
 
@@ -105,7 +105,7 @@ class Parser:
         self.expect('LPAREN')
         self.expect('RPAREN')
         self.expect('EOL')
-        # #print(f"[Parser] Found instantiation: {var_name} = {class_name}()")
+        print(f"[Parser] Found instantiation: {var_name} = {class_name}()")
         self.instantiation_found = True
 
     def method_self(self):
@@ -116,7 +116,7 @@ class Parser:
         self.expect('RPAREN')
         self.expect('COLON')
         self.expect('EOL')
-        #print(f"[Parser] Found method with self: {method_name}")
+        print(f"[Parser] Found method with self: {method_name}")
         self.self_method_found = True
 
     def arg_list(self):
@@ -145,21 +145,21 @@ class Parser:
         if self.peek() == 'EOL':
             self.current += 1
 
-    # def summary(self):
-    #     #print("\n[Result] Detection Summary:")
-    #     #print(f"  Class Found: {'YES' if self.class_found else 'NO'}")
-    #     #print(f"  Instantiation Found: {'YES' if self.instantiation_found else 'NO'}")
-    #     #print(f"  Method with self Found: {'YES' if self.self_method_found else 'NO'}")
+    def summary(self):
+        print("\n[Result] Detection Summary:")
+        print(f"  Class Found: {'YES' if self.class_found else 'NO'}")
+        print(f"  Instantiation Found: {'YES' if self.instantiation_found else 'NO'}")
+        print(f"  Method with self Found: {'YES' if self.self_method_found else 'NO'}")
 
-    #     if self.class_found:
-    #         #print("✅ Code uses object-oriented programming.")
-    #     else:
-    #         #print("⚠️ Not enough OOP patterns detected.")
+        if self.class_found:
+            print("✅ Code uses object-oriented programming.")
+        else:
+            print("⚠️ Not enough OOP patterns detected.")
 
-def validate(source):
-    # with open(path, 'r') as f:
-    #     source = f.read()
+def validate(path):
+    with open(path, 'r') as f:
+        source = f.read()
     parser = Parser(source)
     parser.parse()
-    # parser.summary()
+    parser.summary()
     return parser.class_found
